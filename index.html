@@ -1,0 +1,722 @@
+cat > /mnt/user-data/outputs/grademate.html << 'ENDOFFILE'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GradeMate</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #1a1714; --ink-muted: #6b6560; --ink-faint: #a09a94;
+    --paper: #faf8f4; --paper-warm: #f3efe8; --paper-card: #fffffe;
+    --rule: #e8e3db; --rule-strong: #cec8bf;
+    --accent: #c84b2f; --accent-light: #faeae6; --accent-mid: #e8714f;
+    --gold: #b8860b; --gold-light: #fdf6e3;
+    --green: #2d7a4f; --green-light: #eaf5ee;
+    --blue: #2456a4; --blue-light: #e8eef8;
+    --purple: #6b3fa0; --purple-light: #f0eafc;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  nav { background: var(--paper-card); border-bottom: 1px solid var(--rule); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; align-items: center; gap: 8px; }
+  .nav-link { padding: 6px 14px; border-radius: 6px; font-size: 14px; color: var(--ink-muted); cursor: pointer; transition: all 0.15s; border: none; background: none; font-family: 'DM Sans', sans-serif; }
+  .nav-link:hover { color: var(--ink); background: var(--paper-warm); }
+  .nav-link.active { color: var(--ink); background: var(--paper-warm); }
+  .btn-upgrade { background: var(--accent); color: white; border: none; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .btn-upgrade:hover { background: #b03d23; }
+  .hero { padding: 4rem 2rem 3rem; max-width: 860px; margin: 0 auto; text-align: center; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.2rem; background: var(--paper-warm); padding: 4px 14px; border-radius: 20px; border: 1px solid var(--rule); }
+  .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 700; line-height: 1.1; letter-spacing: -1px; color: var(--ink); margin-bottom: 1rem; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { font-size: 17px; color: var(--ink-muted); max-width: 560px; margin: 0 auto 2rem; line-height: 1.65; }
+  .hero-stats { display: flex; justify-content: center; gap: 2.5rem; margin-top: 1.5rem; }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--ink); }
+  .stat-label { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .usage-bar-wrap { max-width: 860px; margin: 0 auto 1.5rem; padding: 0 2rem; }
+  .usage-bar-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
+  .usage-text { flex: 1; }
+  .usage-title { font-size: 13px; font-weight: 500; }
+  .usage-sub { font-size: 12px; color: var(--ink-muted); }
+  .usage-track { flex: 2; height: 6px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+  .usage-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s; }
+  .usage-count { font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .usage-upgrade { background: var(--accent); color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+  .main { max-width: 860px; margin: 0 auto; padding: 0 2rem 4rem; }
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--rule); margin-bottom: 1.5rem; }
+  .tab { padding: 10px 18px; font-size: 14px; color: var(--ink-muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: 'DM Sans', sans-serif; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+  .tab-num { width: 18px; height: 18px; border-radius: 50%; background: var(--rule); font-size: 10px; display: flex; align-items: center; justify-content: center; color: var(--ink-muted); font-weight: 500; }
+  .tab.active .tab-num { background: var(--accent-light); color: var(--accent); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .section-header { margin-bottom: 1rem; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+  .section-sub { font-size: 13px; color: var(--ink-muted); }
+  .field { margin-bottom: 1.2rem; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+  textarea, input[type="text"], select { width: 100%; background: var(--paper-card); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); resize: vertical; transition: border-color 0.15s; outline: none; }
+  textarea:focus, input[type="text"]:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px var(--accent-light); }
+  textarea { min-height: 140px; line-height: 1.6; }
+  .char-count { font-size: 11px; color: var(--ink-faint); text-align: right; margin-top: 4px; }
+  .rubric-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .rubric-row { display: grid; grid-template-columns: 1fr 80px 32px; gap: 8px; align-items: center; background: var(--paper-card); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
+  .rubric-row input { background: transparent; border: none; padding: 4px 0; font-size: 14px; }
+  .rubric-row input:focus { box-shadow: none; border: none; }
+  .rubric-row input[type="number"] { text-align: center; }
+  .rubric-del { background: none; border: none; cursor: pointer; color: var(--ink-faint); font-size: 16px; padding: 2px; transition: color 0.15s; }
+  .rubric-del:hover { color: var(--accent); }
+  .btn-add-row { background: none; border: 1px dashed var(--rule-strong); border-radius: 8px; padding: 9px 14px; font-size: 13px; color: var(--ink-muted); cursor: pointer; width: 100%; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .btn-add-row:hover { border-color: var(--accent-mid); color: var(--accent); background: var(--accent-light); }
+  .rubric-total { text-align: right; font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+  .rubric-total strong { color: var(--ink); }
+  .grade-btn-wrap { margin-top: 2rem; text-align: center; }
+  .btn-grade { background: var(--accent); color: white; border: none; padding: 14px 40px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; letter-spacing: 0.2px; }
+  .btn-grade:hover:not(:disabled) { background: #b03d23; transform: translateY(-1px); }
+  .btn-grade:disabled { background: var(--ink-faint); cursor: not-allowed; transform: none; }
+  .btn-sub { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 6px; }
+  .loading-state { text-align: center; padding: 4rem 2rem; }
+  .loading-spinner { width: 44px; height: 44px; border: 3px solid var(--rule); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+  .loading-sub { font-size: 14px; color: var(--ink-muted); }
+  .loading-steps { display: flex; flex-direction: column; gap: 8px; max-width: 280px; margin: 2rem auto 0; text-align: left; }
+  .loading-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-muted); opacity: 0; transform: translateX(-8px); transition: all 0.4s; }
+  .loading-step.show { opacity: 1; transform: translateX(0); }
+  .loading-step .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rule-strong); flex-shrink: 0; }
+  .loading-step.done .dot { background: var(--green); }
+  .loading-step.active .dot { background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .results-title { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; }
+  .btn-reset { background: none; border: 1px solid var(--rule-strong); padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--ink-muted); transition: all 0.15s; }
+  .btn-reset:hover { border-color: var(--ink); color: var(--ink); }
+  .grade-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: center; }
+  .grade-circle-wrap { text-align: center; }
+  .grade-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 8px; border: 3px solid; }
+  .grade-letter { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; line-height: 1; }
+  .grade-pct { font-size: 13px; font-weight: 500; }
+  .grade-label { font-size: 12px; color: var(--ink-muted); }
+  .grade-A { border-color: var(--green); color: var(--green); background: var(--green-light); }
+  .grade-B { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+  .grade-C { border-color: var(--gold); color: var(--gold); background: var(--gold-light); }
+  .grade-D, .grade-F { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .grade-summary h3 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; margin-bottom: 8px; }
+  .grade-summary p { font-size: 14px; color: var(--ink-muted); line-height: 1.65; }
+  .score-bar-wrap { margin-top: 12px; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-muted); margin-bottom: 4px; }
+  .score-bar { height: 8px; background: var(--rule); border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+  .breakdown-section { margin-bottom: 1.5rem; }
+  .breakdown-title { font-size: 13px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--rule); }
+  .criterion-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; transition: border-color 0.2s; }
+  .criterion-card:hover { border-color: var(--rule-strong); }
+  .criterion-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .criterion-name { font-size: 14px; font-weight: 500; }
+  .criterion-score { display: flex; align-items: center; gap: 8px; }
+  .score-pill { font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+  .score-high { background: var(--green-light); color: var(--green); }
+  .score-mid { background: var(--gold-light); color: var(--gold); }
+  .score-low { background: var(--accent-light); color: var(--accent); }
+  .criterion-bar { height: 4px; background: var(--rule); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+  .criterion-fill { height: 100%; border-radius: 2px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+  .criterion-feedback { font-size: 13px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 8px; }
+  .improvement-tag { display: inline-flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--blue); background: var(--blue-light); padding: 6px 10px; border-radius: 6px; line-height: 1.5; margin-top: 4px; }
+  .feedback-box { background: var(--paper-warm); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; margin-bottom: 1.5rem; }
+  .feedback-box h4 { font-size: 13px; font-weight: 500; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .feedback-box p { font-size: 14px; line-height: 1.7; color: var(--ink); }
+  .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-action { padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; border: 1px solid var(--rule-strong); background: var(--paper-card); color: var(--ink); }
+  .btn-action:hover { background: var(--paper-warm); }
+  .btn-action.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-action.primary:hover { background: #b03d23; }
+  .pricing-wrap { padding: 1rem 0; }
+  .pricing-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .pricing-sub { text-align: center; color: var(--ink-muted); margin-bottom: 2.5rem; font-size: 15px; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 2rem; }
+  .price-card { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; position: relative; }
+  .price-card.featured { border: 2px solid var(--accent); }
+  .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 500; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  .plan-name { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-muted); margin-bottom: 8px; }
+  .plan-price { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 700; margin-bottom: 4px; line-height: 1; }
+  .plan-price small { font-size: 15px; font-weight: 400; color: var(--ink-muted); font-family: 'DM Sans', sans-serif; }
+  .plan-period { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
+  .plan-features { list-style: none; margin-bottom: 20px; }
+  .plan-features li { font-size: 13px; padding: 5px 0; color: var(--ink-muted); display: flex; align-items: flex-start; gap: 8px; }
+  .check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .cross { color: var(--ink-faint); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .btn-plan { width: 100%; padding: 11px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .btn-plan.outline { background: none; border: 1px solid var(--rule-strong); color: var(--ink); }
+  .btn-plan.outline:hover { background: var(--paper-warm); }
+  .btn-plan.filled { background: var(--accent); color: white; border: none; }
+  .btn-plan.filled:hover { background: #b03d23; }
+  .school-card { background: var(--gold-light); border: 1px solid #e8d89a; border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; gap: 20px; }
+  .school-icon { font-size: 36px; }
+  .school-text h4 { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; margin-bottom: 4px; }
+  .school-text p { font-size: 13px; color: var(--ink-muted); }
+  .btn-contact { background: var(--gold); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
+  .history-empty { text-align: center; padding: 4rem 2rem; color: var(--ink-muted); }
+  .history-empty-icon { font-size: 48px; margin-bottom: 1rem; }
+  .history-empty h3 { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; color: var(--ink); }
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+  .history-item { background: var(--paper-card); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: border-color 0.15s; }
+  .history-item:hover { border-color: var(--rule-strong); }
+  .history-grade { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  .history-info { flex: 1; }
+  .history-info h4 { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .history-info p { font-size: 12px; color: var(--ink-muted); }
+  .history-date { font-size: 12px; color: var(--ink-faint); }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: white; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 999; opacity: 0; transform: translateY(8px); transition: all 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  @media (max-width: 600px) {
+    .grade-card { grid-template-columns: 1fr; text-align: center; }
+    .hero-stats { gap: 1.5rem; }
+    .result-actions { flex-direction: column; }
+    nav { padding: 0 1rem; }
+    .main, .hero, .usage-bar-wrap { padding-left: 1rem; padding-right: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Grade<span>Mate</span></div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('grade')">Grade Essay</button>
+    <button class="nav-link" onclick="showPage('history')">History</button>
+    <button class="nav-link" onclick="showPage('pricing')">Pricing</button>
+    <button class="btn-upgrade" onclick="showPage('pricing')">Upgrade ✦</button>
+  </div>
+</nav>
+
+<div id="page-grade">
+  <div class="hero">
+    <div class="hero-tag">✦ Smart essay feedback</div>
+    <h1>Know your grade <em>before</em> you submit</h1>
+    <p>Paste your assignment, rubric, and draft. Get a predicted grade and rubric-specific feedback in seconds.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">12k+</div><div class="stat-label">Essays graded</div></div>
+      <div class="stat"><div class="stat-num">94%</div><div class="stat-label">Grade accuracy</div></div>
+      <div class="stat"><div class="stat-num">NCEA</div><div class="stat-label">Curriculum focus</div></div>
+    </div>
+  </div>
+
+  <div class="usage-bar-wrap">
+    <div class="usage-bar-card">
+      <div class="usage-text">
+        <div class="usage-title">Free plan — 3 reviews/month</div>
+        <div class="usage-sub" id="usage-sub-text">2 reviews remaining</div>
+      </div>
+      <div class="usage-track"><div class="usage-fill" id="usage-fill" style="width:33%"></div></div>
+      <div class="usage-count" id="usage-count">1/3 used</div>
+      <button class="usage-upgrade" onclick="showPage('pricing')">Upgrade</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tabs">
+      <button class="tab active" id="tab-1" onclick="showTab(1)"><span class="tab-num" id="tn-1">1</span> Assignment</button>
+      <button class="tab" id="tab-2" onclick="showTab(2)"><span class="tab-num" id="tn-2">2</span> Rubric</button>
+      <button class="tab" id="tab-3" onclick="showTab(3)"><span class="tab-num" id="tn-3">3</span> Your Draft</button>
+    </div>
+
+    <div class="panel active" id="panel-1">
+      <div class="section-header">
+        <div class="section-title">What's the assignment?</div>
+        <div class="section-sub">Paste the full assignment prompt or question your teacher gave you.</div>
+      </div>
+      <div class="field">
+        <label>Assignment Prompt</label>
+        <textarea id="inp-assignment" placeholder="e.g. Write a 1500-word analytical essay on the causes of World War One, focusing on the role of nationalism and imperial rivalry..." oninput="updateCharCount(this, 'cc-1')"></textarea>
+        <div class="char-count" id="cc-1">0 characters</div>
+      </div>
+      <div class="field">
+        <label>Subject / Level (optional)</label>
+        <input type="text" id="inp-subject" placeholder="e.g. NCEA Level 2 History, Year 12 English, University Biology..." />
+      </div>
+      <div style="text-align:right">
+        <button class="btn-grade" style="padding:10px 28px;font-size:14px" onclick="showTab(2)">Next: Add Rubric →</button>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-2">
+      <div class="section-header">
+        <div class="section-title">Marking rubric</div>
+        <div class="section-sub">Add each rubric criterion and its maximum marks.</div>
+      </div>
+      <div class="rubric-rows" id="rubric-rows"></div>
+      <button class="btn-add-row" onclick="addRubricRow()">+ Add criterion</button>
+      <div class="rubric-total">Total marks: <strong id="rubric-total">0</strong></div>
+      <div style="display:flex;justify-content:space-between;margin-top:1.5rem">
+        <button class="btn-grade" style="padding:10px 28px;font-size:14px;background:none;border:1px solid var(--rule-strong);color:var(--ink)" onclick="showTab(1)">← Back</button>
+        <button class="btn-grade" style="padding:10px 28px;font-size:14px" onclick="showTab(3)">Next: Add Draft →</button>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-3">
+      <div class="section-header">
+        <div class="section-title">Your draft</div>
+        <div class="section-sub">Paste your current draft — even if it's rough. The more complete it is, the more accurate the feedback.</div>
+      </div>
+      <div class="field">
+        <label>Draft Text</label>
+        <textarea id="inp-draft" placeholder="Paste your essay or assignment draft here..." style="min-height:220px" oninput="updateCharCount(this, 'cc-3')"></textarea>
+        <div class="char-count" id="cc-3">0 characters</div>
+      </div>
+      <div class="grade-btn-wrap">
+        <button class="btn-grade" id="grade-btn" onclick="runGrading()">✦ Predict my grade</button>
+        <span class="btn-sub">Uses 1 of your 3 free monthly reviews</span>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-loading">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <div class="loading-title">Marking your essay…</div>
+        <div class="loading-sub">Reading your draft against the rubric</div>
+        <div class="loading-steps" id="loading-steps">
+          <div class="loading-step" id="ls-1"><div class="dot"></div> Reading assignment brief</div>
+          <div class="loading-step" id="ls-2"><div class="dot"></div> Analysing rubric criteria</div>
+          <div class="loading-step" id="ls-3"><div class="dot"></div> Scoring each criterion</div>
+          <div class="loading-step" id="ls-4"><div class="dot"></div> Generating feedback</div>
+          <div class="loading-step" id="ls-5"><div class="dot"></div> Calculating predicted grade</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-results"></div>
+  </div>
+</div>
+
+<div id="page-pricing" style="display:none">
+  <div class="main" style="padding-top:2rem">
+    <div class="pricing-wrap">
+      <div class="pricing-title">Simple, honest pricing</div>
+      <div class="pricing-sub">Start free. Upgrade when you need more.</div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <div class="plan-name">Free</div>
+          <div class="plan-price">NZ$0</div>
+          <div class="plan-period">forever</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> 3 essay reviews per month</li>
+            <li><span class="check">✓</span> Predicted grade (A–F)</li>
+            <li><span class="check">✓</span> Basic rubric feedback</li>
+            <li><span class="check">✓</span> NCEA support</li>
+            <li><span class="cross">✗</span> Detailed criterion scores</li>
+            <li><span class="cross">✗</span> Improvement suggestions</li>
+            <li><span class="cross">✗</span> Progress tracking</li>
+            <li><span class="cross">✗</span> Export feedback report</li>
+          </ul>
+          <button class="btn-plan outline" onclick="showPage('grade')">Start free</button>
+        </div>
+        <div class="price-card featured">
+          <div class="popular-badge">Most popular</div>
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">NZ$10 <small>/mo</small></div>
+          <div class="plan-period">billed monthly · cancel anytime</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Unlimited reviews</li>
+            <li><span class="check">✓</span> Predicted grade + score breakdown</li>
+            <li><span class="check">✓</span> Detailed rubric analysis</li>
+            <li><span class="check">✓</span> Specific improvement suggestions</li>
+            <li><span class="check">✓</span> Progress tracking over time</li>
+            <li><span class="check">✓</span> Export PDF feedback report</li>
+            <li><span class="check">✓</span> NCEA + Cambridge support</li>
+            <li><span class="check">✓</span> Priority processing</li>
+          </ul>
+          <button class="btn-plan filled" onclick="alert('Stripe checkout coming soon!')">Get Premium</button>
+        </div>
+        <div class="price-card">
+          <div class="plan-name">Credits</div>
+          <div class="plan-price">NZ$5 <small>pack</small></div>
+          <div class="plan-period">no subscription · buy when needed</div>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> 10 reviews for NZ$5</li>
+            <li><span class="check">✓</span> 50 reviews for NZ$15</li>
+            <li><span class="check">✓</span> 200 reviews for NZ$40</li>
+            <li><span class="check">✓</span> Credits never expire</li>
+            <li><span class="check">✓</span> Full detailed feedback</li>
+            <li><span class="check">✓</span> Great for exam season</li>
+            <li><span class="cross">✗</span> Progress tracking</li>
+            <li><span class="cross">✗</span> PDF export</li>
+          </ul>
+          <button class="btn-plan outline" onclick="alert('Credit packs coming soon!')">Buy credits</button>
+        </div>
+      </div>
+      <div class="school-card">
+        <div class="school-icon">🏫</div>
+        <div class="school-text">
+          <h4>School & tutor licences</h4>
+          <p>Give every student in your class access. From NZ$500/year per school. Tutor accounts available per student or monthly.</p>
+        </div>
+        <button class="btn-contact" onclick="alert('Email: hello@grademate.ai')">Get a quote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page-history" style="display:none">
+  <div class="main" style="padding-top:2rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div>
+        <div class="section-title">Review history</div>
+        <div class="section-sub">Your past essay reviews and predicted grades.</div>
+      </div>
+    </div>
+    <div id="history-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ============================================================
+  // IMPORTANT: Replace the placeholder below with your real
+  // Anthropic API key from https://console.anthropic.com
+  // DO NOT share or commit this file publicly with a real key.
+  // For production, move this call to a serverless function.
+  // ============================================================
+  const ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE";
+  const API_URL = "https://api.anthropic.com/v1/messages";
+
+  let usageCount = 1;
+  let gradingHistory = [];
+  let rubricRows = [];
+
+  function showPage(page) {
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
+    document.getElementById('page-' + page).style.display = 'block';
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    if (page === 'history') renderHistory();
+  }
+
+  function showTab(n) {
+    document.querySelectorAll('.panel').forEach(p => {
+      if (!['panel-loading','panel-results'].includes(p.id)) p.classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + n).classList.add('active');
+    document.getElementById('tab-' + n).classList.add('active');
+    ['panel-loading','panel-results'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    });
+  }
+
+  function updateCharCount(el, countId) {
+    document.getElementById(countId).textContent = el.value.length.toLocaleString() + ' characters';
+  }
+
+  function initRubric() {
+    const defaults = [
+      {criterion: 'Argument & Thesis', marks: 20},
+      {criterion: 'Use of Evidence', marks: 20},
+      {criterion: 'Analysis & Evaluation', marks: 30},
+      {criterion: 'Structure & Organisation', marks: 15},
+      {criterion: 'Writing Quality & Conventions', marks: 15},
+    ];
+    rubricRows = defaults.map((d,i) => ({id: i, ...d}));
+    renderRubricRows();
+  }
+
+  function renderRubricRows() {
+    const container = document.getElementById('rubric-rows');
+    container.innerHTML = rubricRows.map(r => `
+      <div class="rubric-row" id="row-${r.id}">
+        <input type="text" value="${r.criterion}" placeholder="Criterion name..." onchange="updateRow(${r.id}, 'criterion', this.value)" />
+        <input type="number" value="${r.marks}" min="1" max="100" placeholder="Marks" onchange="updateRow(${r.id}, 'marks', parseInt(this.value)||0)" />
+        <button class="rubric-del" onclick="deleteRow(${r.id})" title="Remove">×</button>
+      </div>
+    `).join('');
+    updateRubricTotal();
+  }
+
+  function updateRow(id, field, val) {
+    const row = rubricRows.find(r => r.id === id);
+    if (row) { row[field] = val; updateRubricTotal(); }
+  }
+
+  function deleteRow(id) {
+    rubricRows = rubricRows.filter(r => r.id !== id);
+    renderRubricRows();
+  }
+
+  function addRubricRow() {
+    const id = Date.now();
+    rubricRows.push({id, criterion: '', marks: 10});
+    renderRubricRows();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.rubric-row input[type="text"]');
+      if (inputs.length) inputs[inputs.length-1].focus();
+    }, 50);
+  }
+
+  function updateRubricTotal() {
+    const total = rubricRows.reduce((s, r) => s + (parseInt(r.marks)||0), 0);
+    document.getElementById('rubric-total').textContent = total;
+  }
+
+  async function runGrading() {
+    const assignment = document.getElementById('inp-assignment').value.trim();
+    const subject = document.getElementById('inp-subject').value.trim();
+    const draft = document.getElementById('inp-draft').value.trim();
+    if (!assignment) { showTab(1); showToast('Please enter the assignment prompt first.'); return; }
+    if (!draft) { showToast('Please paste your draft first.'); return; }
+    if (rubricRows.length === 0) { showTab(2); showToast('Please add at least one rubric criterion.'); return; }
+
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-loading').classList.add('active');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    const steps = ['ls-1','ls-2','ls-3','ls-4','ls-5'];
+    let si = 0;
+    const stepInterval = setInterval(() => {
+      if (si > 0) { const prev = document.getElementById(steps[si-1]); prev.classList.remove('active'); prev.classList.add('done'); }
+      if (si < steps.length) { document.getElementById(steps[si]).classList.add('show','active'); si++; }
+      else clearInterval(stepInterval);
+    }, 700);
+
+    const rubricText = rubricRows.map(r => `- ${r.criterion}: ${r.marks} marks`).join('\n');
+    const totalMarks = rubricRows.reduce((s,r) => s + (parseInt(r.marks)||0), 0);
+
+    const prompt = `You are an experienced teacher and academic assessor. A student has submitted an essay draft for feedback. Your job is to predict their grade and give detailed, actionable feedback for each rubric criterion.
+
+ASSIGNMENT PROMPT:
+${assignment}
+${subject ? `\nSUBJECT/LEVEL: ${subject}` : ''}
+
+MARKING RUBRIC (Total: ${totalMarks} marks):
+${rubricText}
+
+STUDENT'S DRAFT:
+${draft}
+
+Please provide a thorough assessment in valid JSON only (no markdown, no preamble). Return exactly this structure:
+
+{
+  "predictedGrade": "B+",
+  "totalScore": 74,
+  "totalPossible": ${totalMarks},
+  "percentageScore": 74,
+  "gradeBand": "Merit",
+  "overallSummary": "2-3 sentence honest summary of the essay's overall quality",
+  "strengths": "1-2 sentences on what the student is doing well",
+  "mainWeakness": "1-2 sentences on the most critical thing to improve",
+  "criteria": [
+    {
+      "name": "Criterion name matching rubric",
+      "score": 15,
+      "maxScore": 20,
+      "percentage": 75,
+      "feedback": "Specific, direct feedback about this criterion in 1-3 sentences",
+      "improvement": "One specific, actionable improvement for this criterion"
+    }
+  ]
+}
+
+Be honest, specific and constructive. Match criteria names exactly to the rubric provided.`;
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      clearInterval(stepInterval);
+      steps.forEach(s => { const el = document.getElementById(s); el.classList.remove('active'); el.classList.add('done'); });
+      if (!response.ok) throw new Error('API error ' + response.status);
+      const data = await response.json();
+      const text = data.content.map(i => i.text || '').join('');
+      let result;
+      try {
+        const clean = text.replace(/```json|```/g, '').trim();
+        result = JSON.parse(clean);
+      } catch(e) {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (match) result = JSON.parse(match[0]);
+        else throw new Error('Could not parse response');
+      }
+      usageCount = Math.min(usageCount + 1, 3);
+      updateUsageBar();
+      gradingHistory.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleDateString('en-NZ', {day:'numeric',month:'short',year:'numeric'}),
+        subject: subject || 'Essay',
+        assignment: assignment.substring(0, 60) + '...',
+        grade: result.predictedGrade,
+        score: result.totalScore,
+        total: result.totalPossible,
+        result
+      });
+      renderResults(result);
+    } catch (err) {
+      clearInterval(stepInterval);
+      document.getElementById('panel-results').innerHTML = `
+        <div style="text-align:center;padding:3rem">
+          <div style="font-size:40px;margin-bottom:1rem">⚠️</div>
+          <div class="section-title" style="margin-bottom:8px">Grading failed</div>
+          <p style="color:var(--ink-muted);font-size:14px;margin-bottom:1.5rem">${err.message}</p>
+          <button class="btn-grade" style="padding:10px 28px;font-size:14px" onclick="resetGrader()">Try again</button>
+        </div>`;
+      document.getElementById('panel-loading').classList.remove('active');
+      document.getElementById('panel-results').classList.add('active');
+    }
+  }
+
+  function getGradeClass(grade) {
+    const g = (grade || 'C')[0].toUpperCase();
+    if (g === 'A') return 'grade-A';
+    if (g === 'B') return 'grade-B';
+    if (g === 'C') return 'grade-C';
+    return 'grade-D';
+  }
+
+  function getScoreClass(pct) {
+    if (pct >= 75) return 'score-high';
+    if (pct >= 55) return 'score-mid';
+    return 'score-low';
+  }
+
+  function getScoreColor(pct) {
+    if (pct >= 75) return 'var(--green)';
+    if (pct >= 55) return 'var(--gold)';
+    return 'var(--accent)';
+  }
+
+  function renderResults(result) {
+    const gradeClass = getGradeClass(result.predictedGrade);
+    const pct = Math.round(result.percentageScore || (result.totalScore / result.totalPossible * 100));
+    const scoreColor = getScoreColor(pct);
+    const criteriaHTML = (result.criteria || []).map(c => {
+      const cpct = Math.round(c.percentage || (c.score / c.maxScore * 100));
+      return `<div class="criterion-card">
+        <div class="criterion-header">
+          <div class="criterion-name">${c.name}</div>
+          <div class="criterion-score">
+            <span class="score-pill ${getScoreClass(cpct)}">${c.score}/${c.maxScore}</span>
+            <span style="font-size:12px;color:var(--ink-muted)">${cpct}%</span>
+          </div>
+        </div>
+        <div class="criterion-bar"><div class="criterion-fill" style="width:0%;background:${getScoreColor(cpct)}" data-width="${cpct}%"></div></div>
+        <div class="criterion-feedback">${c.feedback}</div>
+        ${c.improvement ? `<div class="improvement-tag">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0;margin-top:2px"><path d="M6 1v10M1 6l5-5 5 5" stroke="#2456a4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>${c.improvement}</span>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+
+    const html = `
+      <div class="results-header">
+        <div class="results-title">Your feedback</div>
+        <button class="btn-reset" onclick="resetGrader()">← Grade another</button>
+      </div>
+      <div class="grade-card">
+        <div class="grade-circle-wrap">
+          <div class="grade-circle ${gradeClass}">
+            <div class="grade-letter">${result.predictedGrade || 'B'}</div>
+            <div class="grade-pct">${pct}%</div>
+          </div>
+          <div class="grade-label">${result.gradeBand || 'Predicted grade'}</div>
+        </div>
+        <div class="grade-summary">
+          <h3>${result.totalScore}/${result.totalPossible} marks</h3>
+          <p>${result.overallSummary || ''}</p>
+          <div class="score-bar-wrap">
+            <div class="score-bar-label"><span>Score</span><span>${pct}%</span></div>
+            <div class="score-bar"><div class="score-fill" style="width:0%;background:${scoreColor}" data-width="${pct}%"></div></div>
+          </div>
+        </div>
+      </div>
+      ${result.strengths ? `<div class="feedback-box"><h4>✦ Strengths</h4><p>${result.strengths}</p></div>` : ''}
+      ${result.mainWeakness ? `<div class="feedback-box" style="background:var(--accent-light);border-color:#f0c4ba"><h4>⚑ Priority improvement</h4><p>${result.mainWeakness}</p></div>` : ''}
+      <div class="breakdown-section">
+        <div class="breakdown-title">Criterion-by-criterion breakdown</div>
+        ${criteriaHTML}
+      </div>
+      <div class="result-actions">
+        <button class="btn-action primary" onclick="showToast('PDF export available on Premium plan!')">Export feedback PDF</button>
+        <button class="btn-action" onclick="resetGrader()">Grade another essay</button>
+        <button class="btn-action" onclick="showPage('pricing')">Upgrade for unlimited</button>
+      </div>`;
+
+    const container = document.getElementById('panel-results');
+    container.innerHTML = html;
+    document.getElementById('panel-loading').classList.remove('active');
+    container.classList.add('active');
+    setTimeout(() => {
+      container.querySelectorAll('[data-width]').forEach(el => { el.style.width = el.dataset.width; });
+    }, 100);
+  }
+
+  function resetGrader() {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-results').innerHTML = '';
+    document.getElementById('panel-loading').querySelectorAll('.loading-step').forEach(s => {
+      s.classList.remove('show','active','done');
+    });
+    showTab(1);
+  }
+
+  function updateUsageBar() {
+    const pct = (usageCount / 3) * 100;
+    document.getElementById('usage-fill').style.width = pct + '%';
+    document.getElementById('usage-count').textContent = usageCount + '/3 used';
+    document.getElementById('usage-sub-text').textContent = (3 - usageCount) + ' review' + ((3-usageCount)===1?'':'s') + ' remaining';
+  }
+
+  function renderHistory() {
+    const container = document.getElementById('history-content');
+    if (gradingHistory.length === 0) {
+      container.innerHTML = `<div class="history-empty"><div class="history-empty-icon">📄</div><h3>No reviews yet</h3><p>Grade your first essay to see your history here.</p><button class="btn-grade" style="margin-top:1rem;padding:10px 28px;font-size:14px" onclick="showPage('grade')">Grade an essay</button></div>`;
+      return;
+    }
+    container.innerHTML = `<div class="history-list">` +
+      gradingHistory.map(h => {
+        const gradeClass = getGradeClass(h.grade);
+        return `<div class="history-item" onclick="showHistoryResult('${h.id}')">
+          <div class="history-grade ${gradeClass}" style="border:2px solid">${h.grade}</div>
+          <div class="history-info"><h4>${h.subject}</h4><p>${h.assignment}</p></div>
+          <div style="text-align:right"><div style="font-size:13px;font-weight:500">${h.score}/${h.total}</div><div class="history-date">${h.date}</div></div>
+        </div>`;
+      }).join('') + `</div>`;
+  }
+
+  function showHistoryResult(id) {
+    const item = gradingHistory.find(h => h.id == id);
+    if (!item) return;
+    showPage('grade');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    renderResults(item.result);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  initRubric();
+  updateUsageBar();
+</script>
+</body>
+</html>
+ENDOFFILE
+echo "Done"
