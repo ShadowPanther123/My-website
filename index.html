@@ -63,6 +63,17 @@
   textarea:focus, input[type="text"]:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px var(--accent-light); }
   textarea { min-height: 140px; line-height: 1.6; }
   .char-count { font-size: 11px; color: var(--ink-faint); text-align: right; margin-top: 4px; }
+
+  /* Curriculum toggle */
+  .curriculum-toggle-wrap { margin-bottom: 1.2rem; }
+  .curriculum-toggle-wrap label { display: block; font-size: 13px; font-weight: 500; color: var(--ink-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .curriculum-toggle { display: inline-flex; background: var(--paper-warm); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 3px; gap: 2px; }
+  .curriculum-btn { padding: 7px 20px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; font-family: 'DM Sans', sans-serif; color: var(--ink-muted); transition: all 0.18s; }
+  .curriculum-btn.active { background: var(--paper-card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .curriculum-badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-ncea { background: var(--green-light); color: var(--green); }
+  .badge-cambridge { background: var(--blue-light); color: var(--blue); }
+
   .rubric-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
   .rubric-row { display: grid; grid-template-columns: 1fr 80px 32px; gap: 8px; align-items: center; background: var(--paper-card); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; }
   .rubric-row input { background: transparent; border: none; padding: 4px 0; font-size: 14px; }
@@ -74,6 +85,11 @@
   .btn-add-row:hover { border-color: var(--accent-mid); color: var(--accent); background: var(--accent-light); }
   .rubric-total { text-align: right; font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
   .rubric-total strong { color: var(--ink); }
+
+  /* Curriculum hint box */
+  .curriculum-hint { display: flex; align-items: flex-start; gap: 10px; background: var(--blue-light); border: 1px solid #c5d4ed; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.2rem; font-size: 13px; color: var(--blue); line-height: 1.5; }
+  .curriculum-hint.ncea { background: var(--green-light); border-color: #b5d9c4; color: var(--green); }
+
   .grade-btn-wrap { margin-top: 2rem; text-align: center; }
   .btn-grade { background: var(--accent); color: white; border: none; padding: 14px 40px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; letter-spacing: 0.2px; }
   .btn-grade:hover:not(:disabled) { background: #b03d23; transform: translateY(-1px); }
@@ -178,6 +194,8 @@
     .result-actions { flex-direction: column; }
     nav { padding: 0 1rem; }
     .main, .hero, .usage-bar-wrap { padding-left: 1rem; padding-right: 1rem; }
+    .curriculum-toggle { width: 100%; }
+    .curriculum-btn { flex: 1; text-align: center; }
   }
 </style>
 </head>
@@ -199,9 +217,9 @@
     <h1>Know your grade <em>before</em> you submit</h1>
     <p>Paste your assignment, rubric, and draft. Get a predicted grade and rubric-specific feedback in seconds.</p>
     <div class="hero-stats">
-      <div class="stat"><div class="stat-num">12k+</div><div class="stat-label">Essays graded</div></div>
-      <div class="stat"><div class="stat-num">94%</div><div class="stat-label">Grade accuracy</div></div>
-      <div class="stat"><div class="stat-num">NCEA</div><div class="stat-label">Curriculum focus</div></div>
+      <div class="stat"><div class="stat-num">NCEA</div><div class="stat-label">Curriculum</div></div>
+      <div class="stat"><div class="stat-num">&</div><div class="stat-label"> </div></div>
+      <div class="stat"><div class="stat-num">Cambridge</div><div class="stat-label">Curriculum</div></div>
     </div>
   </div>
 
@@ -209,10 +227,10 @@
     <div class="usage-bar-card">
       <div class="usage-text">
         <div class="usage-title">Free plan — 3 reviews/month</div>
-        <div class="usage-sub" id="usage-sub-text">2 reviews remaining</div>
+        <div class="usage-sub" id="usage-sub-text">3 reviews remaining</div>
       </div>
-      <div class="usage-track"><div class="usage-fill" id="usage-fill" style="width:33%"></div></div>
-      <div class="usage-count" id="usage-count">1/3 used</div>
+      <div class="usage-track"><div class="usage-fill" id="usage-fill" style="width:0%"></div></div>
+      <div class="usage-count" id="usage-count">0/3 used</div>
       <button class="usage-upgrade" onclick="showPage('pricing')">Upgrade</button>
     </div>
   </div>
@@ -229,14 +247,33 @@
         <div class="section-title">What's the assignment?</div>
         <div class="section-sub">Paste the full assignment prompt or question your teacher gave you.</div>
       </div>
+
+      <!-- Curriculum toggle -->
+      <div class="curriculum-toggle-wrap">
+        <label>Curriculum</label>
+        <div class="curriculum-toggle">
+          <button class="curriculum-btn active" id="curr-ncea" onclick="setCurriculum('ncea')">
+            NCEA <span class="curriculum-badge badge-ncea">NZ</span>
+          </button>
+          <button class="curriculum-btn" id="curr-cambridge" onclick="setCurriculum('cambridge')">
+            Cambridge <span class="curriculum-badge badge-cambridge">IGCSE / A-Level</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="curriculum-hint" class="curriculum-hint ncea">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;margin-top:2px"><circle cx="7" cy="7" r="6.5" stroke="currentColor"/><path d="M7 6v4M7 4.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span id="curriculum-hint-text">Grading with NCEA standards — Achievement, Merit, and Excellence bands will be used.</span>
+      </div>
+
       <div class="field">
         <label>Assignment Prompt</label>
         <textarea id="inp-assignment" placeholder="e.g. Write a 1500-word analytical essay on the causes of World War One, focusing on the role of nationalism and imperial rivalry..." oninput="updateCharCount(this, 'cc-1')"></textarea>
         <div class="char-count" id="cc-1">0 characters</div>
       </div>
       <div class="field">
-        <label>Subject / Level (optional)</label>
-        <input type="text" id="inp-subject" placeholder="e.g. NCEA Level 2 History, Year 12 English, University Biology..." />
+        <label>Subject / Level <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" id="inp-subject" placeholder="e.g. NCEA Level 2 History, Cambridge A-Level Biology, Year 12 English..." />
       </div>
       <div style="text-align:right">
         <button class="btn-grade" style="padding:10px 28px;font-size:14px" onclick="showTab(2)">Next: Add Rubric →</button>
@@ -306,7 +343,7 @@
             <li><span class="check">✓</span> 3 essay reviews per month</li>
             <li><span class="check">✓</span> Predicted grade (A–F)</li>
             <li><span class="check">✓</span> Basic rubric feedback</li>
-            <li><span class="check">✓</span> NCEA support</li>
+            <li><span class="check">✓</span> NCEA & Cambridge support</li>
             <li><span class="cross">✗</span> Detailed criterion scores</li>
             <li><span class="cross">✗</span> Improvement suggestions</li>
             <li><span class="cross">✗</span> Progress tracking</li>
@@ -384,10 +421,32 @@
   const ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE";
   const API_URL = "https://api.anthropic.com/v1/messages";
 
-  let usageCount = 1;
+  let usageCount = 0;
   let gradingHistory = [];
   let rubricRows = [];
+  let currentCurriculum = 'ncea';
 
+  // ── Curriculum toggle ───────────────────────────────────────
+  function setCurriculum(curr) {
+    currentCurriculum = curr;
+    document.getElementById('curr-ncea').classList.toggle('active', curr === 'ncea');
+    document.getElementById('curr-cambridge').classList.toggle('active', curr === 'cambridge');
+
+    const hint = document.getElementById('curriculum-hint');
+    const hintText = document.getElementById('curriculum-hint-text');
+
+    if (curr === 'ncea') {
+      hint.className = 'curriculum-hint ncea';
+      hintText.textContent = 'Grading with NCEA standards — Achievement, Merit, and Excellence bands will be used.';
+      initRubric('ncea');
+    } else {
+      hint.className = 'curriculum-hint';
+      hintText.textContent = 'Grading with Cambridge standards — grades A*–U and mark-band descriptors will be used.';
+      initRubric('cambridge');
+    }
+  }
+
+  // ── Page & tab navigation ───────────────────────────────────
   function showPage(page) {
     document.querySelectorAll('[id^="page-"]').forEach(p => p.style.display = 'none');
     document.getElementById('page-' + page).style.display = 'block';
@@ -412,15 +471,27 @@
     document.getElementById(countId).textContent = el.value.length.toLocaleString() + ' characters';
   }
 
-  function initRubric() {
-    const defaults = [
+  // ── Rubric defaults per curriculum ──────────────────────────
+  const RUBRIC_DEFAULTS = {
+    ncea: [
       {criterion: 'Argument & Thesis', marks: 20},
       {criterion: 'Use of Evidence', marks: 20},
       {criterion: 'Analysis & Evaluation', marks: 30},
       {criterion: 'Structure & Organisation', marks: 15},
       {criterion: 'Writing Quality & Conventions', marks: 15},
-    ];
-    rubricRows = defaults.map((d,i) => ({id: i, ...d}));
+    ],
+    cambridge: [
+      {criterion: 'Knowledge & Understanding', marks: 20},
+      {criterion: 'Analysis & Interpretation', marks: 25},
+      {criterion: 'Use of Evidence & Sources', marks: 25},
+      {criterion: 'Communication & Structure', marks: 15},
+      {criterion: 'Evaluation & Judgement', marks: 15},
+    ]
+  };
+
+  function initRubric(curr) {
+    const defaults = RUBRIC_DEFAULTS[curr || currentCurriculum] || RUBRIC_DEFAULTS.ncea;
+    rubricRows = defaults.map((d, i) => ({id: i, ...d}));
     renderRubricRows();
   }
 
@@ -461,6 +532,7 @@
     document.getElementById('rubric-total').textContent = total;
   }
 
+  // ── Grading ─────────────────────────────────────────────────
   async function runGrading() {
     const assignment = document.getElementById('inp-assignment').value.trim();
     const subject = document.getElementById('inp-subject').value.trim();
@@ -484,7 +556,14 @@
     const rubricText = rubricRows.map(r => `- ${r.criterion}: ${r.marks} marks`).join('\n');
     const totalMarks = rubricRows.reduce((s,r) => s + (parseInt(r.marks)||0), 0);
 
+    const curriculumContext = currentCurriculum === 'cambridge'
+      ? `This is a Cambridge curriculum assessment (IGCSE / A-Level). Use Cambridge mark-band descriptors and grade boundaries (A*, A, B, C, D, E, U). Cambridge typically uses percentage boundaries like: A* 90%+, A 80–89%, B 70–79%, C 60–69%, D 50–59%, E 40–49%, U below 40%.`
+      : `This is an NCEA (New Zealand) curriculum assessment. Use NCEA grade bands: Not Achieved (0–49%), Achieved (50–64%), Merit (65–79%), Excellence (80–100%). The predictedGrade should be one of: N, A, M, or E with a + or – modifier if appropriate.`;
+
     const prompt = `You are an experienced teacher and academic assessor. A student has submitted an essay draft for feedback. Your job is to predict their grade and give detailed, actionable feedback for each rubric criterion.
+
+CURRICULUM: ${currentCurriculum === 'cambridge' ? 'Cambridge (IGCSE / A-Level)' : 'NCEA (New Zealand)'}
+${curriculumContext}
 
 ASSIGNMENT PROMPT:
 ${assignment}
@@ -499,11 +578,11 @@ ${draft}
 Please provide a thorough assessment in valid JSON only (no markdown, no preamble). Return exactly this structure:
 
 {
-  "predictedGrade": "B+",
+  "predictedGrade": "${currentCurriculum === 'cambridge' ? 'B' : 'M'}",
   "totalScore": 74,
   "totalPossible": ${totalMarks},
   "percentageScore": 74,
-  "gradeBand": "Merit",
+  "gradeBand": "${currentCurriculum === 'cambridge' ? 'Grade B' : 'Merit'}",
   "overallSummary": "2-3 sentence honest summary of the essay's overall quality",
   "strengths": "1-2 sentences on what the student is doing well",
   "mainWeakness": "1-2 sentences on the most critical thing to improve",
@@ -550,8 +629,11 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
         if (match) result = JSON.parse(match[0]);
         else throw new Error('Could not parse response');
       }
+
+      // Only increment usage after a successful grading
       usageCount = Math.min(usageCount + 1, 3);
       updateUsageBar();
+
       gradingHistory.unshift({
         id: Date.now(),
         date: new Date().toLocaleDateString('en-NZ', {day:'numeric',month:'short',year:'numeric'}),
@@ -560,6 +642,7 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
         grade: result.predictedGrade,
         score: result.totalScore,
         total: result.totalPossible,
+        curriculum: currentCurriculum,
         result
       });
       renderResults(result);
@@ -578,10 +661,19 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
   }
 
   function getGradeClass(grade) {
-    const g = (grade || 'C')[0].toUpperCase();
-    if (g === 'A') return 'grade-A';
+    if (!grade) return 'grade-C';
+    const g = grade[0].toUpperCase();
+    // NCEA: E=Excellence, M=Merit, A=Achieved, N=Not Achieved
+    if (g === 'E' || g === 'A' && grade.length === 1) {
+      // Could be Excellence (NCEA) or A grade (Cambridge)
+      if (currentCurriculum === 'ncea' && g === 'E') return 'grade-A';
+      if (currentCurriculum === 'ncea' && g === 'A') return 'grade-B';
+      if (currentCurriculum === 'cambridge' && g === 'A') return 'grade-A';
+    }
+    if (g === 'M') return 'grade-B'; // Merit
     if (g === 'B') return 'grade-B';
     if (g === 'C') return 'grade-C';
+    if (g === 'N') return 'grade-D'; // Not Achieved
     return 'grade-D';
   }
 
@@ -676,7 +768,8 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
     const pct = (usageCount / 3) * 100;
     document.getElementById('usage-fill').style.width = pct + '%';
     document.getElementById('usage-count').textContent = usageCount + '/3 used';
-    document.getElementById('usage-sub-text').textContent = (3 - usageCount) + ' review' + ((3-usageCount)===1?'':'s') + ' remaining';
+    const remaining = 3 - usageCount;
+    document.getElementById('usage-sub-text').textContent = remaining + ' review' + (remaining === 1 ? '' : 's') + ' remaining';
   }
 
   function renderHistory() {
@@ -688,9 +781,12 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
     container.innerHTML = `<div class="history-list">` +
       gradingHistory.map(h => {
         const gradeClass = getGradeClass(h.grade);
+        const currBadge = h.curriculum === 'cambridge'
+          ? `<span style="font-size:10px;background:var(--blue-light);color:var(--blue);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:500">Cambridge</span>`
+          : `<span style="font-size:10px;background:var(--green-light);color:var(--green);padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:500">NCEA</span>`;
         return `<div class="history-item" onclick="showHistoryResult('${h.id}')">
           <div class="history-grade ${gradeClass}" style="border:2px solid">${h.grade}</div>
-          <div class="history-info"><h4>${h.subject}</h4><p>${h.assignment}</p></div>
+          <div class="history-info"><h4>${h.subject}${currBadge}</h4><p>${h.assignment}</p></div>
           <div style="text-align:right"><div style="font-size:13px;font-weight:500">${h.score}/${h.total}</div><div class="history-date">${h.date}</div></div>
         </div>`;
       }).join('') + `</div>`;
@@ -712,9 +808,9 @@ Be honest, specific and constructive. Match criteria names exactly to the rubric
     setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  initRubric();
+  // Init
+  initRubric('ncea');
   updateUsageBar();
 </script>
 </body>
 </html>
-
