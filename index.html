@@ -413,13 +413,10 @@
 
 <script>
   // ============================================================
-  // IMPORTANT: Replace the placeholder below with your real
-  // Anthropic API key from https://console.anthropic.com
-  // DO NOT share or commit this file publicly with a real key.
-  // For production, move this call to a serverless function.
+  // Grading requests go through the /api/grade serverless function,
+  // which holds the Google AI Studio (Gemini) API key server-side.
+  // No API key lives in this file — see api/grade.js.
   // ============================================================
-  const ANTHROPIC_API_KEY = "YOUR_API_KEY_HERE";
-  const API_URL = "https://api.anthropic.com/v1/messages";
 
   let usageCount = 0;
   let gradingHistory = [];
@@ -601,25 +598,19 @@ Please provide a thorough assessment in valid JSON only (no markdown, no preambl
 Be honest, specific and constructive. Match criteria names exactly to the rubric provided.`;
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch('/api/grade', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': ANTHROPIC_API_KEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
       });
       clearInterval(stepInterval);
       steps.forEach(s => { const el = document.getElementById(s); el.classList.remove('active'); el.classList.add('done'); });
-      if (!response.ok) throw new Error('API error ' + response.status);
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.error || ('API error ' + response.status));
+      }
       const data = await response.json();
-      const text = data.content.map(i => i.text || '').join('');
+      const text = data.text || '';
       let result;
       try {
         const clean = text.replace(/```json|```/g, '').trim();
